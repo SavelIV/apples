@@ -1,5 +1,6 @@
 <?php
 return [
+    'name' => 'My Apple Garden',
     'aliases' => [
         '@bower' => '@vendor/bower-asset',
         '@npm'   => '@vendor/npm-asset',

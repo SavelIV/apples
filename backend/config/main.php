@@ -8,6 +8,7 @@ $params = array_merge(
 
 return [
     'id' => 'app-backend',
+    'timeZone' => 'Europe/Moscow',
     'basePath' => dirname(__DIR__),
     'controllerNamespace' => 'backend\controllers',
     'defaultRoute' => 'apple/index',
@@ -43,6 +44,10 @@ return [
             'showScriptName' => false,
             'rules' => [
             ],
+        ],
+        'formatter' => [
+            'class' => 'yii\i18n\Formatter',
+            'defaultTimeZone' => 'Europe/Moscow',
         ],
     ],
     'params' => $params,

@@ -42,6 +42,15 @@ return [
             'rules' => [
             ],
         ],
+        'urlManagerBackend' => [
+            'class' => 'yii\web\UrlManager',
+            'baseUrl' => 'http://admin.apples/',
+            'enablePrettyUrl' => true,
+            'enableStrictParsing' => true,
+            'showScriptName' => false,
+            'rules' => [
+            ],
+        ],
     ],
     'params' => $params,
 ];

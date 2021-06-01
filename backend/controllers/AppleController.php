@@ -2,6 +2,8 @@
 
 namespace backend\controllers;
 
+use backend\forms\GenerateAppleTreeForm;
+use Exception;
 use Yii;
 use backend\models\Apple;
 use backend\models\search\AppleSearch;
@@ -55,53 +57,29 @@ class AppleController extends Controller
     }
 
     /**
-     * Displays a single Apple model.
-     * @param integer $id
+     * Creates a bunch of new Apple models.
+     * If creation is successful, the browser will be redirected to the 'index' page.
      * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
+     * @throws Exception
      */
-    public function actionView($id)
+    public function actionGenerateAppleTree()
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
-    }
+        $form = new GenerateAppleTreeForm();
 
-    /**
-     * Creates a new Apple model.
-     * If creation is successful, the browser will be redirected to the 'view' page.
-     * @return mixed
-     */
-    public function actionCreate()
-    {
-        $model = new Apple();
+        if ($form->load(Yii::$app->request->post()) && $form->validate()) {
 
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+            for ($i = 0; $i < $form->appleQuantity; $i++) {
+                $apple = new Apple();
+                $apple->color = $apple->getColor();
+                $apple->save();
+            }
+            Yii::$app->session->setFlash('success', 'New tree with ' . $form->appleQuantity . ' apples generated. Thank you.');
+
+            return $this->redirect(['index']);
         }
 
         return $this->render('create', [
-            'model' => $model,
-        ]);
-    }
-
-    /**
-     * Updates an existing Apple model.
-     * If update is successful, the browser will be redirected to the 'view' page.
-     * @param integer $id
-     * @return mixed
-     * @throws NotFoundHttpException if the model cannot be found
-     */
-    public function actionUpdate($id)
-    {
-        $model = $this->findModel($id);
-
-        if ($model->load(Yii::$app->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
-        }
-
-        return $this->render('update', [
-            'model' => $model,
+            'model' => $form
         ]);
     }
 

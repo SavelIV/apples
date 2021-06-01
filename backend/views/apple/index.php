@@ -12,25 +12,38 @@ $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="apple-index">
 
-    <h1><?= Html::encode($this->title) ?></h1>
-
     <p>
-        <?= Html::a('Create Apple', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Generate Apple Tree', ['generate-apple-tree'], ['class' => 'btn btn-success']) ?>
     </p>
+
+    <h1><?= Html::encode($this->title) ?></h1>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
-            ['class' => 'yii\grid\SerialColumn'],
+//            ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'color',
-            'status',
+            [
+                'attribute' => 'color',
+                'filter' => $searchModel::getColorList(),
+                'value' => function ($model) {
+                    return "<div class='apple_color' style='background-color: " . Html::encode($model->getColorName()) . "'></div> " . Html::encode($model->getColorName());
+                },
+                'format' => 'raw',
+            ],
+            [
+                'attribute' => 'status',
+                'filter' => $searchModel::getStatusList(),
+                'value' => function ($model) {
+                    return $model->getStatusName();
+                },
+                'format' => 'raw',
+            ],
             'size',
-            'createdAt',
-            //'updatedAt',
-            'fallenAt',
+            'createdAt:datetime',
+            'fallenAt:datetime',
 
             ['class' => 'yii\grid\ActionColumn'],
         ],

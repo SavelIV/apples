@@ -2,11 +2,13 @@
 
 namespace backend\controllers;
 
+use backend\forms\BiteOffAppleForm;
 use backend\forms\GenerateAppleTreeForm;
 use Exception;
 use Yii;
 use backend\models\Apple;
 use backend\models\search\AppleSearch;
+use yii\db\Expression;
 use yii\filters\AccessControl;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -84,6 +86,54 @@ class AppleController extends Controller
     }
 
     /**
+     * Falls Apple on the ground .
+     * @param integer $id
+     * @return mixed
+     * @throws NotFoundHttpException
+     */
+    public function actionFallOnTheGround($id)
+    {
+        $model = $this->findModel($id);
+
+        $model->status = Apple::STATUS_FALLEN;
+        $model->fallenAt = new Expression('NOW()');
+        $model->save();
+        Yii::$app->session->setFlash('info', 'You have dropped Apple with ID #' . $id . ' successfully. Now You can eat it.');
+        Yii::$app->session->setFlash('danger', 'Apple will rot if you don`t eat it in 5 hours.');
+        return $this->redirect(['index']);
+    }
+
+    /**
+     * Bites off the Apple
+     * @param integer $id
+     * @return mixed
+     * @throws \yii\base\Exception
+     */
+    public function actionBiteOff($id)
+    {
+        $form = new BiteOffAppleForm();
+
+        if ($form->load(Yii::$app->request->post()) && $form->validate()) {
+            $model = $this->findModel($id);
+            $model->size = $model->eat($form->percent);
+
+            if ($model->size > 0) {
+                $model->save();
+                Yii::$app->session->setFlash('success', 'You have bitten ' . $form->percent . ' percent of Apple with ID #' . $id . ', ' . $model->size . ' percent left.');
+            } elseif ($model->size == 0) {
+                $model->delete();
+                Yii::$app->session->setFlash('danger', 'You have eaten all Apple with ID #' . $id . ' and it has been deleted.');
+            }
+
+            return $this->redirect(['index']);
+        }
+
+        return $this->render('bite', [
+            'model' => $form,
+        ]);
+    }
+
+    /**
      * Deletes an existing Apple model.
      * If deletion is successful, the browser will be redirected to the 'index' page.
      * @param integer $id
@@ -93,6 +143,7 @@ class AppleController extends Controller
     public function actionDelete($id)
     {
         $this->findModel($id)->delete();
+        Yii::$app->session->setFlash('danger', 'Apple with ID #' . $id . ' has been deleted.');
 
         return $this->redirect(['index']);
     }

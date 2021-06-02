@@ -3,6 +3,8 @@
 namespace backend\models;
 
 use backend\models\query\AppleQuery;
+use DateTime;
+use Yii;
 use yii\behaviors\TimestampBehavior;
 use yii\db\ActiveRecord;
 use yii\db\Expression;
@@ -92,6 +94,20 @@ class Apple extends ActiveRecord
         return new AppleQuery(get_called_class());
     }
 
+    public function afterFind()
+    {
+        parent::afterFind();
+
+        $now = new DateTime();
+        $fallen = new DateTime($this->fallenAt);
+
+        if ($this->status == self::STATUS_FALLEN && ($now->diff($fallen, false)->format('%h') >= 5)) {
+            $this->status = self::STATUS_ROTTEN;
+            $this->save();
+            Yii::$app->session->setFlash('warning', 'Apple with ID #' . $this->id . ' is on the ground for more than 5 hours and rotten now. You can delete it.');
+        }
+    }
+
     /**
      * @return array
      */
@@ -143,6 +159,20 @@ class Apple extends ActiveRecord
     public function getStatusName(): ?string
     {
         return ArrayHelper::getValue(static::getStatusList(), $this->status);
+    }
+
+    /**
+     * @param integer $percent the percent of bitten Apple
+     * @return integer
+     */
+    function eat($percent)
+    {
+        if ($percent > $this->size) {
+            $this->size = 0;
+        } else {
+            $this->size -= $percent;
+        }
+        return $this->size;
     }
 
 }

@@ -1,4 +1,4 @@
-Готовый проект здесь: https://apples.saviv.website/         пароль для admin: admin123
+Готовый проект здесь: https://apples.saviv.site/         пароль для admin: admin123
 
 Тестовое задание
 
